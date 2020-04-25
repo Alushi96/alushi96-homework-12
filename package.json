@@ -1,0 +1,23 @@
+{
+  "name": "alushi96-homework-12",
+  "version": "1.0.0",
+  "description": "Employee Manager System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alushi96/alushi96-homework-12.git"
+  },
+  "author": "Ali Jaber",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Alushi96/alushi96-homework-12/issues"
+  },
+  "homepage": "https://github.com/Alushi96/alushi96-homework-12#readme",
+  "dependencies": {
+    "inquirer": "^7.1.0",
+    "mysql": "^2.18.1"
+  }
+}
