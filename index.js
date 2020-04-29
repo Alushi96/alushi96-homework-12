@@ -93,7 +93,32 @@ function init(){
 /////////////////////  View All Employess In Database  ////////////////////////////////
 
 function viewEmp() {
-
+    var query = `SELECT
+                e1.id AS "ID",
+                e1.first_name AS "First Name",
+                e1.last_name AS "Last Name",
+                r.title AS "Title",
+                d.name AS "Department",
+                r.salary AS "Salary",
+                e2.first_name AS "Manager First Name",
+                e2.last_name AS "Manager Last Name"
+                FROM employee e1
+                JOIN role r
+                    on e1.role_id = r.id
+                JOIN department d
+                    on r.department_id = d.id
+                LEFT JOIN employee e2
+                    on e1.manager_id = e2.id`;
+    conn.query(query, function (err, data) {
+        if (err) throw err;
+        for (var i = 0; i<data.length; i++) {
+            if(data[i].Manager == null) {
+                data[i].Manager = "None";
+            }
+        }
+        console.table(data);
+        init();
+    })
 };
 
 ////////////////////////////////  View All Employees By Selected Department  ///////////////////////////////////////////////////
