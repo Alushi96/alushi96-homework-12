@@ -252,9 +252,103 @@ function viewEmpMan() {
 
 //////////////////////////  Add An Employee To The Database  /////////////////////////////////////
 
-function addEmp() {
-
-}
+function addEmps() {
+    inquirer.prompt([
+           {
+               type: "input",
+               name: "first",
+               message: "What is the employee's first name?"
+           },
+           {
+               type: "input",
+               name: "last",
+               message: "What is the employee's last name?"
+           },
+           {
+               type: "list",
+               name: "role",
+               message: "What is the employee's role?",
+               choices: rolOptions
+           },
+           {
+               type: "list",
+               name: "manager",
+               message: "Who is the employee's manager?",
+               choices: manOptions
+           }
+       ])
+       .then(function(answer) {
+           var query = `SELECT id FROM role WHERE title = ?`;
+           conn.query(query, [answer.role], (err, res) => {
+               if (err) throw err;
+               let role;
+               role = res[0].id;
+               console.log(role);
+   
+               
+   
+                   if (answer.manager === "None") {
+                   query = `INSERT INTO employee (first_name, last_name, role_id) VALUES (?,?,?)`;
+                   conn.query(query, [answer.first, answer.last, role], err => {
+                   if (err) throw err;
+                   init();
+                   });
+               }
+               else {
+                   const first = answer.manager.split(" ")[0];
+               const last = answer.manager.split(" ")[1];
+               let man;
+               query = `SELECT id FROM employee WHERE first_name = ? AND last_name = ?`;
+               conn.query(query, [first, last], (err, res) => {
+               if (err) throw err;
+               man = res[0].id;
+               console.log(man);
+                   query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+                   conn.query(query, [answer.first, answer.last, role, man], err => {
+                   if (err) throw err;
+                   init();
+                   });
+               })
+               }
+               
+           })
+       });
+   };
+   
+   var rolOptions = [];
+   var manOptions = [];
+   
+   function addEmp() {
+       viewRL();
+       viewEMPSM();
+   }
+   
+   
+   function viewRL() {
+      const query = `SELECT title FROM role`;
+      conn.query(query, function(err, res) {
+          if (err) throw err;
+          rolOptions = [];
+          for (var i = 0; i < res.length; i++) { 
+              const rol = res[i].title
+              rolOptions.push(rol);
+          }
+      })
+   }
+   
+   function viewEMPSM() {
+       const query = `SELECT first_name, last_name FROM employee`;
+       conn.query(query, function(err, res) {
+           if (err) throw err;
+           manOptions = ["None"];
+           for (var i = 0; i < res.length; i++) {
+               const dep = res[i].first_name + " " + res[i].last_name;
+               manOptions.push(dep);
+           }
+           addEmps();
+       })
+    }
+   
 
 ////////////////////////////////  Add A Department To Database  /////////////////////////////////////////////////
 
