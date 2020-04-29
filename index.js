@@ -498,6 +498,40 @@ function remRole() {
     })
  }
 
+ ////////////////////////////////////////  Remove Department From Database  /////////////////////////////////////////
+
+ function remDeps() {
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "depart",
+            message: "Which employee would you like to remove?",
+            choices: depOptions
+        }
+    ])
+    .then(function(answer) {
+        var query = `DELETE FROM department WHERE name = ?`;
+        conn.query(query, [answer.depart], (err, data) => {
+            if (err) throw err;
+            init();
+
+        })   
+    })
+ };
+
+ function remDep() {
+    const query = `SELECT name FROM department`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        depOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].name
+            depOptions.push(dep);
+        }
+         remDeps();
+    })
+ }
+
 /////////////////////////////////////////  Update Employee Role  ////////////////////////////////////////////////////
 
 function upEmpRoles() {
