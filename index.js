@@ -1,18 +1,19 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
+const cTable = require("console.table");
 
-/*var connection = mysql.createConnection({
+var conn = mysql.createConnection({
     host: "localhost",
     port:3306,
     user: "root",
     password: "",
-    database: "employee_DB"
+    database: "employee_management_DB"
 });
 
-connection.connect(err => { 
+conn.connect(err => { 
     if (err) throw err;
     init();
-});*/
+});
 
 function init(){
     inquirer.prompt({
@@ -23,11 +24,14 @@ function init(){
             "View All Employees",
             "View All Employees By Department",
             "View All Employees By Manager",
-            "Add Employee", 
+            "View All Departments",
+            "View All Roles",
+            "Add Employee",
+            "Add A Department",
+            "Add A Role", 
             "Remove Employee", 
             "Update Employee Role", 
             "Update Employee Manager",
-            "View All Roles",
             "Exit"
         ]
     })
@@ -45,8 +49,24 @@ function init(){
                     viewEmpMan();
                     break;
 
+                case "View All Departments":
+                    viewDep();
+                    break;
+
+                case "View All Roles":
+                    viewAllRoles();
+                    break;
+
                 case "Add Employee":
                     addEmp();
+                    break;
+
+                case "Add A Department":
+                    addDep();
+                    break;
+
+                case "Add A Role":
+                    addRole();
                     break;
 
                 case "Remove Employee":
@@ -61,55 +81,82 @@ function init(){
                     upEmpMan();
                     break;
 
-                case "View All Roles":
-                    viewAllRoles();
-                    break;
-
                 case "Exit":
-                    connection.end();
+                    conn.end();
                     break;
             }
         });
 };
 
+
+
+/////////////////////  View All Employess In Database  ////////////////////////////////
+
 function viewEmp() {
-    console.log("View Employees");
-    init();
+
 };
+
+////////////////////////////////  View All Employees By Selected Department  ///////////////////////////////////////////////////
 
 function viewEmpDep() {
-    console.log("View All Employees By Department");
-    init();
-};
+
+ }
+
+//////////////////////////  View All Employees By Selected Manager  ////////////////////////////////////
 
 function viewEmpMan() {
-    console.log("View All Employees By Manager");
-    init();
+
+ }
+
+ /////////////////////////  View All Depratments  //////////////////////////////////////////////
+
+ function viewDep() {
+
+ }
+
+ //////////////////////////  View All Roles  ////////////////////////////////////////////////////////
+
+ function viewAllRoles() {
+
 };
+
+//////////////////////////  Add An Employee To The Database  /////////////////////////////////////
 
 function addEmp() {
-    console.log("Add Employee");
-    init();
-};
+
+}
+
+////////////////////////////////  Add A Department To Database  /////////////////////////////////////////////////
+
+function addDep() {
+
+}
+
+
+///////////////////////////////// Add A Role To Database  /////////////////////////////////////////////////
+
+function addRole() {
+ 
+ }
+
+ ///////////////////////////////  Remove Employee From Database   //////////////////////////////////////////////////////////
 
 function remEmp() {
-    console.log("Remove Employee");
-    init();
-};
+
+}
+
+/////////////////////////////////////////  Update Employee Role  ////////////////////////////////////////////////////
 
 function upEmpRole() {
-    console.log("Update Employee Role");
-    init();
-};
 
-function upEmpMan() {
-    console.log("Update Employee Manager");
-    init();
-};
+}
 
-function viewAllRoles() {
-    console.log("View All Roles");
-    init();
-};
+//////////////////////////////////////  Update Employee Manager  ///////////////////////////////////////////////////////////
+function upEmpMan(){
 
-init();
+}
+
+///////////////////////////////////////  View All Roles In Database  /////////////////////////////////////////////////////////
+
+
+
