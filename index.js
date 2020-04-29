@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
+const figlet = require("figlet");
 const cTable = require("console.table");
 
 var conn = mysql.createConnection({
@@ -12,7 +13,11 @@ var conn = mysql.createConnection({
 
 conn.connect(err => { 
     if (err) throw err;
-    init();
+    figlet("Employee Manager", function(err, data) {
+        if (err) throw err;
+        console.log(data);
+        init();
+    });
 });
 
 function init(){
@@ -121,11 +126,11 @@ function viewEmp() {
                     on e1.manager_id = e2.id`;
     conn.query(query, function (err, data) {
         if (err) throw err;
-        for (var i = 0; i<data.length; i++) {
-            if(data[i].Manager == null) {
-                data[i].Manager = "None";
-            }
-        }
+        // for (var i = 0; i<data.length; i++) {
+        //     if(data[i].Manager == null) {
+        //         data[i].Manager = "None";
+        //     }
+        // }
         console.table(data);
         init();
     })
@@ -202,17 +207,23 @@ function viewEmpMans() {
         conn.query(query, [first, last], (err, res) => {
             if (err) throw err;
 
-            query =`SELECT employee.id AS 'ID', 
-                    first_name AS 'First Name', 
-                    last_name AS 'Last Name', 
-                    role.title AS 'Title', 
-                    department.name AS 'Department', 
-                    role.salary AS 'Salary', 
-                    manager_id
-                    FROM employee, role, department
-                    WHERE manager_id = ? AND employee.role_id = role.id
-                    AND role.department_id = department.id
-                    ORDER BY employee.id ASC`
+            query =`SELECT
+                    e1.id AS "ID",
+                    e1.first_name AS "First Name",
+                    e1.last_name AS "Last Name",
+                    r.title AS "Title",
+                    d.name AS "Department",
+                    r.salary AS "Salary",
+                    e2.first_name AS "Manager First Name",
+                    e2.last_name AS "Manager Last Name"
+                    from employee e1
+                    join role r
+                        on e1.role_id = r.id
+                    join department d
+                        on r.department_id = d.id
+                    left join employee e2
+                        on e1.manager_id = e2.id
+                        WHERE e1.manager_id = ?`
                     conn.query(query, [res[0].id], (err, res) => {
                         if (err) throw err;
                         console.table(res);
