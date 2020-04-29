@@ -242,7 +242,12 @@ function viewEmpMan() {
  //////////////////////////  View All Roles  ////////////////////////////////////////////////////////
 
  function viewAllRoles() {
-
+    const query = `SELECT role.title FROM role`;
+    conn.query(query, (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    })
 };
 
 //////////////////////////  Add An Employee To The Database  /////////////////////////////////////
