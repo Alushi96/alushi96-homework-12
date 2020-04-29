@@ -123,8 +123,55 @@ function viewEmp() {
 
 ////////////////////////////////  View All Employees By Selected Department  ///////////////////////////////////////////////////
 
-function viewEmpDep() {
+function viewEmpDeps() {
+    inquirer.prompt(
+        {
+            type: "list",
+            name: "department",
+            message: "Which department would you like to choose?",
+            choices: depOptions
+        }
+    )
 
+    .then(function(answer) {
+        var query =`SELECT
+                    e1.id AS "ID",
+                    e1.first_name AS "First Name",
+                    e1.last_name AS "Last Name",
+                    r.title AS "Title",
+                    d.name AS "Department",
+                    r.salary AS "Salary",
+                    e2.first_name AS "Manager First Name",
+                    e2.last_name AS "Manager Last Name"
+                    from department d
+                    join role r
+                        on r.department_id = d.id
+                    join employee e1
+                        on e1.role_id = r.id
+                    left join employee e2
+                        on e1.manager_id = e2.id
+                        WHERE name = ?`;
+        conn.query(query, [answer.department], (err, res) => {
+            if (err) throw err;
+            console.table(res);
+            init();
+        })
+    });
+};
+
+var depOptions = [];
+
+function viewEmpDep() {
+    const query = `SELECT name FROM department`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        depOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].name
+            depOptions.push(dep);
+        }
+         viewEmpDeps();
+    })
  }
 
 //////////////////////////  View All Employees By Selected Manager  ////////////////////////////////////
