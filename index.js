@@ -456,9 +456,67 @@ function remEmp() {
 
 /////////////////////////////////////////  Update Employee Role  ////////////////////////////////////////////////////
 
+function upEmpRoles() {
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "employee",
+            message: "Which employee would you like to update their role?",
+            choices: manOptions
+        },
+        {
+            type: "list",
+            name: "role",
+            message: "What role would you like to choose?",
+            choices: rolOptions
+        }
+    ])
+    .then(function(answers) {
+        const first = answers.employee.split(" ")[0];
+        const last = answers.employee.split(" ")[1];
+        var query = `Select id FROM role WHERE title = ?`;
+        conn.query(query, [answers.role], (err, data) => {
+            if (err) throw err;
+            console.log(data)
+
+            query = `UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?`;
+            conn.query(query, [data[0].id, first, last], (err, res) => {
+                if (err) throw err;
+                init();
+            })
+        })
+    })
+};
+
+
+
 function upEmpRole() {
+    const query = `SELECT first_name, last_name FROM employee`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        manOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].first_name + " " + res[i].last_name;
+            manOptions.push(dep);
+        }
+        UpRL();
+        
+    })
 
 }
+
+function UpRL() {
+    const query = `SELECT title FROM role`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        rolOptions = [];
+        for (var i = 0; i < res.length; i++) { 
+            const rol = res[i].title
+            rolOptions.push(rol);
+        }
+        upEmpRoles();
+    })
+ }
 
 //////////////////////////////////////  Update Employee Manager  ///////////////////////////////////////////////////////////
 function upEmpMan(){
