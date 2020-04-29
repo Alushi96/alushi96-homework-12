@@ -519,11 +519,80 @@ function UpRL() {
  }
 
 //////////////////////////////////////  Update Employee Manager  ///////////////////////////////////////////////////////////
-function upEmpMan(){
+var empOptions=[];
+
+function upEmpMans() {
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "employee",
+            message: "Which employee would you like to update thier manager?",
+            choices: empOptions
+        },
+        {
+            type:"list",
+            name: "manager",
+            message: "Who would you like to set as thier manager?",
+            choices:manOptions
+        }
+    ])
+    .then(function(answers) {
+        const first = answers.manager.split(" ")[0];
+        const last = answers.manager.split(" ")[1];
+        const firste = answers.employee.split(" ")[0];
+        const laste = answers.employee.split(" ")[1];
+        var query = `SELECT id FROM employee WHERE first_name = ? AND last_name = ?`;
+        conn.query(query, [first, last], (err,data) => {
+            if(err) throw err;
+            console.log(data)
+
+            if (answers.manager !== "None") {
+            query = `UPDATE employee SET manager_id = ? WHERE first_name = ? AND last_name = ?`;
+            conn.query(query, [data[0].id, firste, laste], (err, res) => {
+                if (err) throw err;
+                init();
+            })
+            }
+            else {
+                query = `UPDATE employee SET manager_id = null WHERE first_name = ? AND last_name = ?`;
+                conn.query(query, [firste, laste], (err, res) => {
+                    if (err) throw err;
+                    init();
+                })
+            }
+        })
+    })
+};
+
+function upEmpMan() {
+    const query = `SELECT first_name, last_name FROM employee`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        empOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].first_name + " " + res[i].last_name;
+            empOptions.push(dep);
+        }
+        upMan();
+        
+    })
 
 }
 
-///////////////////////////////////////  View All Roles In Database  /////////////////////////////////////////////////////////
+function upMan() {
+    const query = `SELECT first_name, last_name FROM employee`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        manOptions = ["None"]
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].first_name + " " + res[i].last_name;
+            manOptions.push(dep);
+        }
+        upEmpMans();
+        
+    })
+
+}
 
 
 
