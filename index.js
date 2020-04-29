@@ -231,8 +231,13 @@ function viewEmpMan() {
  /////////////////////////  View All Depratments  //////////////////////////////////////////////
 
  function viewDep() {
-
- }
+    const query = `SELECT name FROM department`;
+    conn.query(query, (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    })
+}
 
  //////////////////////////  View All Roles  ////////////////////////////////////////////////////////
 
