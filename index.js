@@ -29,7 +29,9 @@ function init(){
             "Add Employee",
             "Add A Department",
             "Add A Role", 
-            "Remove Employee", 
+            "Remove Employee",
+            "Remove Role", 
+            "Remove Department",
             "Update Employee Role", 
             "Update Employee Manager",
             "Exit"
@@ -71,6 +73,14 @@ function init(){
 
                 case "Remove Employee":
                     remEmp();
+                    break;
+
+                case "Remove Role":
+                    remRole();
+                    break;
+
+                case "Remove Department":
+                    remDep();
                     break;
 
                 case "Update Employee Role":
@@ -453,6 +463,40 @@ function remEmp() {
     })
 
 }
+
+/////////////////////////////////////////  Remove Role From Database  //////////////////////////////////////////////
+
+function remRoles() {
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "role",
+            message: "Which employee would you like to remove?",
+            choices: rolOptions
+        }
+    ])
+    .then(function(answer) {
+        var query = `DELETE FROM role WHERE title = ?`;
+        conn.query(query, [answer.role], (err, data) => {
+            if (err) throw err;
+            init();
+
+        })   
+    })
+};
+
+function remRole() {
+    const query = `SELECT title FROM role`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        rolOptions = [];
+        for (var i = 0; i < res.length; i++) { 
+            const rol = res[i].title
+            rolOptions.push(rol);
+        }
+        remRoles();
+    })
+ }
 
 /////////////////////////////////////////  Update Employee Role  ////////////////////////////////////////////////////
 
