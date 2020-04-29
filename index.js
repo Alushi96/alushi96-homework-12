@@ -353,7 +353,20 @@ function addEmps() {
 ////////////////////////////////  Add A Department To Database  /////////////////////////////////////////////////
 
 function addDep() {
-
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "What is the name of the department you would like to add?"
+        }
+    ])
+    .then(function(answers) {
+        const query = `INSERT INTO department (name) VALUES (?)`;
+        conn.query(query, [answers.name], err => {
+         if (err) throw err;
+        init();
+        })
+    })
 }
 
 
