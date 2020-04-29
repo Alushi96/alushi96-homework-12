@@ -176,8 +176,56 @@ function viewEmpDep() {
 
 //////////////////////////  View All Employees By Selected Manager  ////////////////////////////////////
 
-function viewEmpMan() {
+function viewEmpMans() {
+    inquirer.prompt(
+        {
+            type: "list",
+            name: "manager",
+            message: "Which manager would you like to choose?",
+            choices: manaOptions
+        }
+    )
+    .then(function(answer) {
+        const first = answer.manager.split(" ")[0];
+        const last = answer.manager.split(" ")[1];
+        var query = `SELECT id FROM employee WHERE first_name = ? AND last_name = ?`;
+        conn.query(query, [first, last], (err, res) => {
+            if (err) throw err;
 
+            query =`SELECT employee.id AS 'ID', 
+                    first_name AS 'First Name', 
+                    last_name AS 'Last Name', 
+                    role.title AS 'Title', 
+                    department.name AS 'Department', 
+                    role.salary AS 'Salary', 
+                    manager_id
+                    FROM employee, role, department
+                    WHERE manager_id = ? AND employee.role_id = role.id
+                    AND role.department_id = department.id
+                    ORDER BY employee.id ASC`
+                    conn.query(query, [res[0].id], (err, res) => {
+                        if (err) throw err;
+                        console.table(res);
+                        init();
+                    })
+        })
+    });
+};
+
+
+var manaOptions = [];
+
+function viewEmpMan() {
+    const query = `SELECT first_name, last_name FROM employee`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        manaOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const mana = res[i].first_name + " " + res[i].last_name;
+            manaOptions.push(mana);
+        }
+         viewEmpMans();
+    })
  }
 
  /////////////////////////  View All Depratments  //////////////////////////////////////////////
