@@ -130,6 +130,14 @@ function viewEmp() {
                     ON e1.manager_id = e2.id`;
     conn.query(query, (err, data) => {
         if (err) throw err;
+<<<<<<< HEAD
+=======
+        // for (var i = 0; i<data.length; i++) {
+        //     if(data[i].Manager == null) {
+        //         data[i].Manager = "None";
+        //     }
+        // }
+>>>>>>> b39735de68c25a8db5a7f3fdf7f77f1bf9fcb7c6
         console.table(data);
         init();
     });
@@ -203,6 +211,7 @@ function viewEmpMans() {
         var query = `SELECT id FROM employee WHERE first_name = ? AND last_name = ?`;
         conn.query(query, [first, last], (err, res) => {
             if (err) throw err;
+<<<<<<< HEAD
             query =`SELECT
                         e1.id AS "ID",
                         e1.first_name AS "First Name",
@@ -220,6 +229,26 @@ function viewEmpMans() {
                     LEFT JOIN employee e2
                         ON e1.manager_id = e2.id
                     WHERE e1.manager_id = ?`
+=======
+
+            query =`SELECT
+                    e1.id AS "ID",
+                    e1.first_name AS "First Name",
+                    e1.last_name AS "Last Name",
+                    r.title AS "Title",
+                    d.name AS "Department",
+                    r.salary AS "Salary",
+                    e2.first_name AS "Manager First Name",
+                    e2.last_name AS "Manager Last Name"
+                    from employee e1
+                    join role r
+                        on e1.role_id = r.id
+                    join department d
+                        on r.department_id = d.id
+                    left join employee e2
+                        on e1.manager_id = e2.id
+                        WHERE e1.manager_id = ?`
+>>>>>>> b39735de68c25a8db5a7f3fdf7f77f1bf9fcb7c6
                     conn.query(query, [res[0].id], (err, res) => {
                         if (err) throw err;
                         console.table(res);
@@ -521,6 +550,40 @@ function remDep() {
         remDeps();
     });
 };
+
+ ////////////////////////////////////////  Remove Department From Database  /////////////////////////////////////////
+
+ function remDeps() {
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "depart",
+            message: "Which employee would you like to remove?",
+            choices: depOptions
+        }
+    ])
+    .then(function(answer) {
+        var query = `DELETE FROM department WHERE name = ?`;
+        conn.query(query, [answer.depart], (err, data) => {
+            if (err) throw err;
+            init();
+
+        })   
+    })
+ };
+
+ function remDep() {
+    const query = `SELECT name FROM department`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        depOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].name
+            depOptions.push(dep);
+        }
+         remDeps();
+    })
+ }
 
 /////////////////////////////////////////  Update Employee Role  ////////////////////////////////////////////////////
 
