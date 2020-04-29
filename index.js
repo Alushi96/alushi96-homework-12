@@ -372,8 +372,49 @@ function addDep() {
 
 ///////////////////////////////// Add A Role To Database  /////////////////////////////////////////////////
 
+function addRoles() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "title",
+            message: "What is the title of the role?"
+        },
+        {
+            type: "input",
+            name: "salary",
+            message: "What salary would you like to add?"
+        },
+        {
+            type: "list",
+            name: "department",
+            message: "Under which department would you like to add this role?",
+            choices: depOptions
+        }
+    ])
+    .then(function(answers) {
+        var query = `Select id FROM department Where name = ?`;
+        conn.query(query, [answers.department], (err, data) => {
+            if (err) throw err;
+            query = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
+            conn.query(query, [answers.title, answers.salary, data[0].id], err => {
+                if (err) throw err;
+                init();
+            })
+        })
+    })
+}
+
 function addRole() {
- 
+    const query = `SELECT name FROM department`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        depOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].name
+            depOptions.push(dep);
+        }
+         addRoles();
+    })
  }
 
  ///////////////////////////////  Remove Employee From Database   //////////////////////////////////////////////////////////
