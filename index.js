@@ -419,7 +419,38 @@ function addRole() {
 
  ///////////////////////////////  Remove Employee From Database   //////////////////////////////////////////////////////////
 
+ function remEmps() {
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "employee",
+            message: "Which employee would you like to remove?",
+            choices: manOptions
+        }
+    ])
+    .then(function(answer) {
+        const first = answer.employee.split(" ")[0];
+        const last = answer.employee.split(" ")[1];
+        var query = `DELETE FROM employee WHERE first_name = ? AND last_name = ?`;
+        conn.query(query, [first, last], (err, data) => {
+            if (err) throw err;
+            init();
+
+        })   
+    })
+};
+
 function remEmp() {
+    const query = `SELECT first_name, last_name FROM employee`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        manOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].first_name + " " + res[i].last_name;
+            manOptions.push(dep);
+        }
+        remEmps();
+    })
 
 }
 
