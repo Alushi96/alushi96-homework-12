@@ -1,6 +1,13 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
+const figlet = require("figlet");
 const cTable = require("console.table");
+
+var depOptions = [];
+var manaOptions = [];
+var rolOptions = [];
+var manOptions = [];
+var empOptions=[];
 
 var conn = mysql.createConnection({
     host: "localhost",
@@ -12,7 +19,11 @@ var conn = mysql.createConnection({
 
 conn.connect(err => { 
     if (err) throw err;
-    init();
+    figlet("Employee Manager", function(err, data) {
+        if (err) throw err;
+        console.log(data);
+        init();
+    });
 });
 
 function init(){
@@ -98,37 +109,30 @@ function init(){
         });
 };
 
-
-
 /////////////////////  View All Employess In Database  ////////////////////////////////
 
 function viewEmp() {
     var query = `SELECT
-                e1.id AS "ID",
-                e1.first_name AS "First Name",
-                e1.last_name AS "Last Name",
-                r.title AS "Title",
-                d.name AS "Department",
-                r.salary AS "Salary",
-                e2.first_name AS "Manager First Name",
-                e2.last_name AS "Manager Last Name"
+                    e1.id AS "ID",
+                    e1.first_name AS "First Name",
+                    e1.last_name AS "Last Name",
+                    r.title AS "Title",
+                    d.name AS "Department",
+                    r.salary AS "Salary",
+                    e2.first_name AS "Manager First Name",
+                    e2.last_name AS "Manager Last Name"
                 FROM employee e1
                 JOIN role r
-                    on e1.role_id = r.id
+                    ON e1.role_id = r.id
                 JOIN department d
-                    on r.department_id = d.id
+                    ON r.department_id = d.id
                 LEFT JOIN employee e2
-                    on e1.manager_id = e2.id`;
-    conn.query(query, function (err, data) {
+                    ON e1.manager_id = e2.id`;
+    conn.query(query, (err, data) => {
         if (err) throw err;
-        for (var i = 0; i<data.length; i++) {
-            if(data[i].Manager == null) {
-                data[i].Manager = "None";
-            }
-        }
         console.table(data);
         init();
-    })
+    });
 };
 
 ////////////////////////////////  View All Employees By Selected Department  ///////////////////////////////////////////////////
@@ -145,44 +149,42 @@ function viewEmpDeps() {
 
     .then(function(answer) {
         var query =`SELECT
-                    e1.id AS "ID",
-                    e1.first_name AS "First Name",
-                    e1.last_name AS "Last Name",
-                    r.title AS "Title",
-                    d.name AS "Department",
-                    r.salary AS "Salary",
-                    e2.first_name AS "Manager First Name",
-                    e2.last_name AS "Manager Last Name"
-                    from department d
-                    join role r
-                        on r.department_id = d.id
-                    join employee e1
-                        on e1.role_id = r.id
-                    left join employee e2
-                        on e1.manager_id = e2.id
-                        WHERE name = ?`;
+                        e1.id AS "ID",
+                        e1.first_name AS "First Name",
+                        e1.last_name AS "Last Name",
+                        r.title AS "Title",
+                        d.name AS "Department",
+                        r.salary AS "Salary",
+                        e2.first_name AS "Manager First Name",
+                        e2.last_name AS "Manager Last Name"
+                    FROM department d
+                    JOIN role r
+                        ON r.department_id = d.id
+                    JOIN employee e1
+                        ON e1.role_id = r.id
+                    LEFT JOIN employee e2
+                        ON e1.manager_id = e2.id
+                    WHERE name = ?`;
         conn.query(query, [answer.department], (err, res) => {
             if (err) throw err;
             console.table(res);
             init();
-        })
+        });
     });
 };
 
-var depOptions = [];
-
 function viewEmpDep() {
     const query = `SELECT name FROM department`;
-    conn.query(query, function(err, res) {
+    conn.query(query, (err, res) => {
         if (err) throw err;
         depOptions = [];
         for (var i = 0; i < res.length; i++) {
-            const dep = res[i].name
+            const dep = res[i].name;
             depOptions.push(dep);
-        }
+        };
          viewEmpDeps();
-    })
- }
+    });
+ };
 
 //////////////////////////  View All Employees By Selected Manager  ////////////////////////////////////
 
@@ -201,42 +203,44 @@ function viewEmpMans() {
         var query = `SELECT id FROM employee WHERE first_name = ? AND last_name = ?`;
         conn.query(query, [first, last], (err, res) => {
             if (err) throw err;
-
-            query =`SELECT employee.id AS 'ID', 
-                    first_name AS 'First Name', 
-                    last_name AS 'Last Name', 
-                    role.title AS 'Title', 
-                    department.name AS 'Department', 
-                    role.salary AS 'Salary', 
-                    manager_id
-                    FROM employee, role, department
-                    WHERE manager_id = ? AND employee.role_id = role.id
-                    AND role.department_id = department.id
-                    ORDER BY employee.id ASC`
+            query =`SELECT
+                        e1.id AS "ID",
+                        e1.first_name AS "First Name",
+                        e1.last_name AS "Last Name",
+                        r.title AS "Title",
+                        d.name AS "Department",
+                        r.salary AS "Salary",
+                        e2.first_name AS "Manager First Name",
+                        e2.last_name AS "Manager Last Name"
+                    FROM employee e1
+                    JOIN role r
+                        ON e1.role_id = r.id
+                    JOIN department d
+                        ON r.department_id = d.id
+                    LEFT JOIN employee e2
+                        ON e1.manager_id = e2.id
+                    WHERE e1.manager_id = ?`
                     conn.query(query, [res[0].id], (err, res) => {
                         if (err) throw err;
                         console.table(res);
                         init();
-                    })
-        })
+                    });
+        });
     });
 };
 
-
-var manaOptions = [];
-
 function viewEmpMan() {
     const query = `SELECT first_name, last_name FROM employee`;
-    conn.query(query, function(err, res) {
+    conn.query(query, (err, res) => {
         if (err) throw err;
         manaOptions = [];
         for (var i = 0; i < res.length; i++) {
             const mana = res[i].first_name + " " + res[i].last_name;
             manaOptions.push(mana);
-        }
+        };
          viewEmpMans();
-    })
- }
+    });
+ };
 
  /////////////////////////  View All Depratments  //////////////////////////////////////////////
 
@@ -246,8 +250,8 @@ function viewEmpMan() {
         if (err) throw err;
         console.table(data);
         init();
-    })
-}
+    });
+};
 
  //////////////////////////  View All Roles  ////////////////////////////////////////////////////////
 
@@ -257,7 +261,7 @@ function viewEmpMan() {
         if (err) throw err;
         console.table(data);
         init();
-    })
+    });
 };
 
 //////////////////////////  Add An Employee To The Database  /////////////////////////////////////
@@ -293,71 +297,62 @@ function addEmps() {
                if (err) throw err;
                let role;
                role = res[0].id;
-               console.log(role);
-   
-               
-   
                    if (answer.manager === "None") {
-                   query = `INSERT INTO employee (first_name, last_name, role_id) VALUES (?,?,?)`;
-                   conn.query(query, [answer.first, answer.last, role], err => {
-                   if (err) throw err;
-                   init();
-                   });
+                        query = `INSERT INTO employee (first_name, last_name, role_id) VALUES (?,?,?)`;
+                        conn.query(query, [answer.first, answer.last, role], err => {
+                        if (err) throw err;
+                        init();
+                        });
                }
                else {
-                   const first = answer.manager.split(" ")[0];
-               const last = answer.manager.split(" ")[1];
-               let man;
-               query = `SELECT id FROM employee WHERE first_name = ? AND last_name = ?`;
-               conn.query(query, [first, last], (err, res) => {
-               if (err) throw err;
-               man = res[0].id;
-               console.log(man);
-                   query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
-                   conn.query(query, [answer.first, answer.last, role, man], err => {
-                   if (err) throw err;
-                   init();
-                   });
-               })
-               }
-               
-           })
-       });
-   };
+                    const first = answer.manager.split(" ")[0];
+                    const last = answer.manager.split(" ")[1];
+                    let man;
+                    query = `SELECT id FROM employee WHERE first_name = ? AND last_name = ?`;
+                    conn.query(query, [first, last], (err, res) => {
+                        if (err) throw err;
+                        man = res[0].id;
+                        query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+                        conn.query(query, [answer.first, answer.last, role, man], err => {
+                            if (err) throw err;
+                            init();
+                        });
+                    });
+                }  
+            });
+        });
+};
    
-   var rolOptions = [];
-   var manOptions = [];
-   
-   function addEmp() {
-       viewRL();
-       viewEMPSM();
-   }
+function addEmp() {
+   viewRL();
+   viewEMPSM();
+};
    
    
-   function viewRL() {
-      const query = `SELECT title FROM role`;
-      conn.query(query, function(err, res) {
-          if (err) throw err;
-          rolOptions = [];
-          for (var i = 0; i < res.length; i++) { 
-              const rol = res[i].title
-              rolOptions.push(rol);
-          }
-      })
-   }
+function viewRL() {
+    const query = `SELECT title FROM role`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        rolOptions = [];
+        for (var i = 0; i < res.length; i++) { 
+            const rol = res[i].title
+            rolOptions.push(rol);
+        };
+    });
+};
    
-   function viewEMPSM() {
-       const query = `SELECT first_name, last_name FROM employee`;
-       conn.query(query, function(err, res) {
-           if (err) throw err;
-           manOptions = ["None"];
-           for (var i = 0; i < res.length; i++) {
-               const dep = res[i].first_name + " " + res[i].last_name;
-               manOptions.push(dep);
-           }
-           addEmps();
-       })
-    }
+function viewEMPSM() {
+    const query = `SELECT first_name, last_name FROM employee`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        manOptions = ["None"];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].first_name + " " + res[i].last_name;
+            manOptions.push(dep);
+        };
+        addEmps();
+    });
+};
    
 
 ////////////////////////////////  Add A Department To Database  /////////////////////////////////////////////////
@@ -373,12 +368,11 @@ function addDep() {
     .then(function(answers) {
         const query = `INSERT INTO department (name) VALUES (?)`;
         conn.query(query, [answers.name], err => {
-         if (err) throw err;
-        init();
-        })
-    })
-}
-
+            if (err) throw err;
+            init();
+        });
+    });
+};
 
 ///////////////////////////////// Add A Role To Database  /////////////////////////////////////////////////
 
@@ -409,10 +403,10 @@ function addRoles() {
             conn.query(query, [answers.title, answers.salary, data[0].id], err => {
                 if (err) throw err;
                 init();
-            })
-        })
-    })
-}
+            });
+        });
+    });
+};
 
 function addRole() {
     const query = `SELECT name FROM department`;
@@ -420,12 +414,12 @@ function addRole() {
         if (err) throw err;
         depOptions = [];
         for (var i = 0; i < res.length; i++) {
-            const dep = res[i].name
+            const dep = res[i].name;
             depOptions.push(dep);
-        }
-         addRoles();
-    })
- }
+        };
+        addRoles();
+    });
+};
 
  ///////////////////////////////  Remove Employee From Database   //////////////////////////////////////////////////////////
 
@@ -445,9 +439,8 @@ function addRole() {
         conn.query(query, [first, last], (err, data) => {
             if (err) throw err;
             init();
-
-        })   
-    })
+        });
+    });
 };
 
 function remEmp() {
@@ -460,9 +453,8 @@ function remEmp() {
             manOptions.push(dep);
         }
         remEmps();
-    })
-
-}
+    });
+};
 
 /////////////////////////////////////////  Remove Role From Database  //////////////////////////////////////////////
 
@@ -480,9 +472,8 @@ function remRoles() {
         conn.query(query, [answer.role], (err, data) => {
             if (err) throw err;
             init();
-
-        })   
-    })
+        });
+    });
 };
 
 function remRole() {
@@ -493,10 +484,43 @@ function remRole() {
         for (var i = 0; i < res.length; i++) { 
             const rol = res[i].title
             rolOptions.push(rol);
-        }
+        };
         remRoles();
-    })
- }
+    });
+};
+
+ ////////////////////////////////////////  Remove Department From Database  /////////////////////////////////////////
+
+function remDeps() {
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "depart",
+            message: "Which employee would you like to remove?",
+            choices: depOptions
+        }
+    ])
+    .then(function(answer) {
+        var query = `DELETE FROM department WHERE name = ?`;
+        conn.query(query, [answer.depart], (err, data) => {
+            if (err) throw err;
+            init();
+        });
+    });
+};
+
+function remDep() {
+    const query = `SELECT name FROM department`;
+    conn.query(query, function(err, res) {
+        if (err) throw err;
+        depOptions = [];
+        for (var i = 0; i < res.length; i++) {
+            const dep = res[i].name;
+            depOptions.push(dep);
+        };
+        remDeps();
+    });
+};
 
 /////////////////////////////////////////  Update Employee Role  ////////////////////////////////////////////////////
 
@@ -521,18 +545,14 @@ function upEmpRoles() {
         var query = `Select id FROM role WHERE title = ?`;
         conn.query(query, [answers.role], (err, data) => {
             if (err) throw err;
-            console.log(data)
-
             query = `UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?`;
             conn.query(query, [data[0].id, first, last], (err, res) => {
                 if (err) throw err;
                 init();
-            })
-        })
-    })
+            });
+        });
+    });
 };
-
-
 
 function upEmpRole() {
     const query = `SELECT first_name, last_name FROM employee`;
@@ -542,12 +562,10 @@ function upEmpRole() {
         for (var i = 0; i < res.length; i++) {
             const dep = res[i].first_name + " " + res[i].last_name;
             manOptions.push(dep);
-        }
-        UpRL();
-        
-    })
-
-}
+        };
+        UpRL();  
+    });
+};
 
 function UpRL() {
     const query = `SELECT title FROM role`;
@@ -555,15 +573,14 @@ function UpRL() {
         if (err) throw err;
         rolOptions = [];
         for (var i = 0; i < res.length; i++) { 
-            const rol = res[i].title
+            const rol = res[i].title;
             rolOptions.push(rol);
-        }
+        };
         upEmpRoles();
-    })
- }
+    });
+};
 
 //////////////////////////////////////  Update Employee Manager  ///////////////////////////////////////////////////////////
-var empOptions=[];
 
 function upEmpMans() {
     inquirer.prompt([
@@ -588,24 +605,23 @@ function upEmpMans() {
         var query = `SELECT id FROM employee WHERE first_name = ? AND last_name = ?`;
         conn.query(query, [first, last], (err,data) => {
             if(err) throw err;
-            console.log(data)
 
             if (answers.manager !== "None") {
-            query = `UPDATE employee SET manager_id = ? WHERE first_name = ? AND last_name = ?`;
-            conn.query(query, [data[0].id, firste, laste], (err, res) => {
-                if (err) throw err;
-                init();
-            })
+                query = `UPDATE employee SET manager_id = ? WHERE first_name = ? AND last_name = ?`;
+                conn.query(query, [data[0].id, firste, laste], (err, res) => {
+                    if (err) throw err;
+                    init();
+                });
             }
             else {
                 query = `UPDATE employee SET manager_id = null WHERE first_name = ? AND last_name = ?`;
                 conn.query(query, [firste, laste], (err, res) => {
                     if (err) throw err;
                     init();
-                })
+                });
             }
-        })
-    })
+        });
+    });
 };
 
 function upEmpMan() {
@@ -616,12 +632,10 @@ function upEmpMan() {
         for (var i = 0; i < res.length; i++) {
             const dep = res[i].first_name + " " + res[i].last_name;
             empOptions.push(dep);
-        }
+        };
         upMan();
-        
-    })
-
-}
+    });
+};
 
 function upMan() {
     const query = `SELECT first_name, last_name FROM employee`;
@@ -633,10 +647,5 @@ function upMan() {
             manOptions.push(dep);
         }
         upEmpMans();
-        
-    })
-
-}
-
-
-
+    });
+};
